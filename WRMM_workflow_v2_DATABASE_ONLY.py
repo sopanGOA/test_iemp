@@ -21,6 +21,7 @@ import shutil
 # NEW: Import database utilities
 from WRMMDatabaseUtils import WRMMOutputManager
 import logging
+from config import DATABASE_CONFIG
 
 # Configure logging
 logging.basicConfig(
@@ -34,14 +35,7 @@ logger = logging.getLogger(__name__)
 # DATABASE CONFIGURATION - UPDATE THESE IF NEEDED
 # ============================================================================
 
-DATABASE_CONFIG = {
-    'host': 'C-GOA-APM-13251',
-    'port': '5432',
-    'database': 'Main',
-    'user': 'postgres',
-    'password': 'IEMP_POSTGRES',
-    'schema': 'wrmm_sopan'
-}
+DATABASE_CONFIG = DATABASE_CONFIG
 
 # Global flag to control output behavior
 ENABLE_DATABASE = True   # Push to database

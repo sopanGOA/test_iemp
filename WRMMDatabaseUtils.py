@@ -23,28 +23,9 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+from config import DATABASE_CONFIG
 
 class WRMMDatabaseManager:
-    """
-    Manager class for WRMM database operations.
-    
-    Usage:
-        db_manager = WRMMDatabaseManager(
-            host='C-GOA-APM-13251',
-            port='5432',
-            database='Main',
-            user='postgres',
-            password='IEMP_POSTGRES',
-            schema='wrmm'
-        )
-        
-        # Push DataFrame to database
-        db_manager.push_dataframe(
-            df=master_data_file,
-            table_name='wrmmoutputs',
-            if_exists='append'
-        )
-    """
     
     def __init__(self, host: str, port: str, database: str, 
                  user: str, password: str, schema: str = 'wrmm'):
@@ -425,14 +406,7 @@ def example_integration():
     Example of how to integrate into existing WRMM workflow.
     """
     # Database configuration
-    db_config = {
-        'host': 'C-GOA-APM-13251',
-        'port': '5432',
-        'database': 'Main',
-        'user': 'postgres',
-        'password': 'IEMP_POSTGRES',
-        'schema': 'wrmm'
-    }
+    db_config = 
     
     # Create output manager
     output_manager = WRMMOutputManager(

@@ -6,18 +6,12 @@ This script checks what tables actually exist in your database.
 
 from sqlalchemy import create_engine, text
 import logging
+from config import DATABASE_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-DB_CONFIG = {
-    'host': 'C-GOA-APM-13251',
-    'port': '5432',
-    'database': 'Main',
-    'user': 'postgres',
-    'password': 'IEMP_POSTGRES',
-    'schema': 'wrmm_sopan'  # Your actual schema
-}
+#
+DB_CONFIG = DATABASE_CONFIG
 
 connection_string = (
     f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"

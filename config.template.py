@@ -13,12 +13,12 @@ This template is safe to commit to version control.
 
 # Database Configuration Template
 DATABASE_CONFIG = {
-    'host': 'YOUR_DATABASE_SERVER',     # e.g., 'localhost' or 'C-GOA-APM-13251'
-    'port': '5432',                     # PostgreSQL default port
-    'database': 'YOUR_DATABASE_NAME',   # e.g., 'Main'
-    'user': 'YOUR_DB_USERNAME',         # e.g., 'postgres'
-    'password': 'YOUR_DB_PASSWORD',     # Your actual database password
-    'schema': 'YOUR_SCHEMA_NAME'        # e.g., 'wrmm_sopan'
+    'host': 'YOUR_DATABASE_SERVER',     
+    'port': '5432',                     
+    'database': 'YOUR_DATABASE_NAME',   
+    'user': 'YOUR_DB_USERNAME',         
+    'password': 'YOUR_DB_PASSWORD',     
+    'schema': 'YOUR_SCHEMA_NAME'       
 }
 
 # Output Settings

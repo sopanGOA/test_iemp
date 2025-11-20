@@ -4,7 +4,7 @@ WRMM Database Setup - Clean Install
 This script drops existing tables and recreates them fresh.
 Use this when you need to start clean or fix column issues.
 
-For: C-GOA-APM-13251 server setup
+
 """
 
 from sqlalchemy import create_engine, text, inspect
@@ -336,14 +336,7 @@ def drop_and_recreate_wrmm_schema():
 def verify_setup():
     """Verify that all tables were created successfully."""
     
-    DB_CONFIG = {
-        'host': 'C-GOA-APM-13251',
-        'port': '5432',
-        'database': 'Main',
-        'user': 'postgres',
-        'password': 'IEMP_POSTGRES',
-        'schema': 'wrmm'
-    }
+    DB_CONFIG = DATABASE_CONFIG
     
     connection_string = (
         f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"
