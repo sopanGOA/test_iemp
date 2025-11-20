@@ -382,15 +382,11 @@ def process_model_outputs_DATABASE_VERSION(model_output_folder, reference_file_n
     
     # Initialize database output manager
     from WRMMDatabaseUtils import WRMMOutputManager
-    
-    db_config = {
-        'host': 'C-GOA-APM-13251',
-        'port': '5432',
-        'database': 'Main',
-        'user': 'postgres',
-        'password': 'IEMP_POSTGRES',
-        'schema': 'wrmm'
-    }
+    # Import config from separate file
+    from config import DATABASE_CONFIG
+        
+    db_config = DATABASE_CONFIG
+
     
     output_manager = WRMMOutputManager(
         output_dir=output_dir,

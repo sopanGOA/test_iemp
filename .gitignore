@@ -1,0 +1,81 @@
+# ========================================
+# WRMM Project .gitignore
+# ========================================
+
+# Sensitive Configuration Files
+config.py
+database_config.py
+secrets.py
+credentials.py
+.env
+.env.local
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+wrmm_workflow/
+grib_env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary Files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Backups
+*.backup
+*.bak
+*.old
+
+# Output Files (if sensitive)
+Dashboard_Data*/
+OUTPUT_DATA*/
+*.csv
+*.xlsx
+*.xls
+
+# Jupyter Notebooks (if they contain sensitive output)
+.ipynb_checkpoints/

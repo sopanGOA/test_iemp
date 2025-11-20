@@ -9,6 +9,7 @@ For: C-GOA-APM-13251 server setup
 
 from sqlalchemy import create_engine, text, inspect
 import logging
+from config import DATABASE_CONFIG
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,14 +18,7 @@ logger = logging.getLogger(__name__)
 def drop_and_recreate_wrmm_schema():
     """Drop existing WRMM tables and recreate them fresh."""
     
-    DB_CONFIG = {
-        'host': 'C-GOA-APM-13251',
-        'port': '5432',
-        'database': 'Main',
-        'user': 'postgres',
-        'password': 'IEMP_POSTGRES',
-        'schema': 'wrmm_sopan'
-    }
+    DB_CONFIG = DATABASE_CONFIG
     
     connection_string = (
         f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"
