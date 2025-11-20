@@ -1,94 +1,3 @@
-# # Import necessary libraries
-# import pyodbc
-# import pandas as pd
-# import os
-# import shutil
-# from datetime import datetime,timedelta
-# import re
-# import numpy as np
-# import math
-# import warnings
-# from openpyxl import Workbook
-# from openpyxl.utils.dataframe import dataframe_to_rows
-
-# warnings.filterwarnings('ignore')
-
-# #### New Optimized functions
-
-# class WRMMDataProcessor:
-#     """
-#     A class for processing and analyzing data from Water Resources Management Model (WRMM).
-
-#     This class provides methods for reading, processing, and analyzing various types of data
-#     related to water resources management, including irrigation, reservoirs, and water conservation objectives.
-
-#     Attributes:
-#         model_dir (str): Directory containing the model files.
-#         path_name_list (list): List of path names for different model scenarios.
-#         reference_file_name (str): Name of the reference file.
-#         seconds_in_day (int): Number of seconds in a day.
-#     """
-#     def __init__(self, model_dir, path_name_list, reference_file_name, seconds_in_day):
-#         """
-#         Initialize the WRMMDataProcessor with model directory and parameters.
-
-#         Args:
-#             model_dir (str): Directory containing the model files.
-#             path_name_list (list): List of path names for different model scenarios.
-#             reference_file_name (str): Name of the reference file.
-#             seconds_in_day (int): Number of seconds in a day.
-#         """
-#         self.model_dir = model_dir
-#         self.path_name_list = path_name_list
-#         self.reference_file_name = reference_file_name
-#         self.seconds_in_day = seconds_in_day
-
-#     def get_weekend_dates(self,year):
-#         """
-#         Generate a list of weekend dates (Sundays) for a given year, including December 31st.
-
-#         This function creates a list of dates for each Sunday in the specified year,
-#         formatted as 'dd-Mon' (e.g., '07-Jan'). It also includes December 31st in the list,
-#         regardless of the day of the week it falls on.
-
-#         Parameters:
-#         year (int): The year for which to generate the weekend dates.
-
-#         Returns:
-#         list of str: A list of formatted date strings representing Sundays and December 31st.
-
-#         Example:
-#         >>> get_weekend_dates(2024)
-#         ['07-Jan', '14-Jan', '21-Jan', '28-Jan', ..., '22-Dec', '29-Dec', '31-Dec']
-
-#         Note:
-#         - The function uses the datetime module to handle date operations.
-#         - It iterates through each day of the year, adding Sundays to the list.
-#         - December 31st is always included, even if it's not a Sunday.
-#         - The date format used is 'dd-Mon', where 'Mon' is the abbreviated month name.
-#         """
-#         start_date = datetime(year, 1, 1)
-#         end_date = datetime(year, 12, 31)
-#         current_date = start_date
-
-#         weekend_dates = []
-
-#     #### In order to change the Weeks, change the weekday .. For 2025 it is 2
-
-#         while current_date <= end_date:
-#             # If it's a Sunday (weekday() == 6)
-#             if current_date.weekday() == 2:
-#                 weekend_dates.append(current_date.strftime('%d-%b'))
-#             current_date += timedelta(days=1)
-
-#         # Add December 31st if it's not already included
-#         if end_date.strftime('%d-%b') not in weekend_dates:
-#             weekend_dates.append(end_date.strftime('%d-%b'))
-
-#         return weekend_dates
-
-
-
 # Import necessary libraries
 import pyodbc
 import pandas as pd
@@ -134,30 +43,6 @@ class WRMMDataProcessor:
         self.path_name_list = path_name_list
         self.reference_file_name = reference_file_name
         self.seconds_in_day = seconds_in_day
-
-    # def get_weekend_dates(self, weeks=52):
-    #     """
-    #     Generate a list of weekly dates starting from the first Tuesday of the current year,
-    #     formatted as 'WKxx yyyy-mm-dd'. Assumes 52 weeks starting from Jan 7 of current year.
-
-    #     Parameters:
-    #     weeks (int): Number of weeks to generate. Default is 52.
-
-    #     Returns:
-    #     list of str: List of weekly labels with dates (e.g., ['WK01\t2025-01-07', ...])
-    #     """
-    #     current_year = datetime.today().year
-    #     start_date = datetime.strptime(f"{current_year}-01-07", "%Y-%m-%d")
-    #     week_dates = []
-
-    #     for week_num in range(1, weeks + 1):
-    #         current_date = start_date + timedelta(days=(week_num - 1) * 7)
-    #         formatted_date = current_date.strftime("%Y-%m-%d")
-    #         week_label = f"WK{week_num:02d}"
-    #         week_dates.append(f"{week_label}\t{formatted_date}")
-
-    #     return week_dates
-
 
     def get_weekend_dates(self, year, weeks=52):
         """
@@ -724,11 +609,6 @@ class WRMMDataProcessor:
 
             # estimate full supply storage (dam3)
             fs_stor = np.interp(fs_elev, pd.to_numeric(elev), pd.to_numeric(stor))
-
-            ##### Instead of doing interpolation, acquire value from WISKI and get the full 
-            
-            # estimate simulated stoarge (dam3)
-            # The simulated Elevation data comes from Katherine.
             sim_stor = np.interp(sim_elev, pd.to_numeric(elev), pd.to_numeric(stor))
 
             # estimate percentage of storage
@@ -738,218 +618,6 @@ class WRMMDataProcessor:
             res_data.loc[item, 'PerStorage'] = stor_per    
         
         return res_data
-    
-    ##### OLD HBDF READ CODE JUNE 17 , 2025
-    # Read hbdf based on given reference file
-    # def read_hbdf_based_on_ref(self, hbdf_dir, ref_file, model_name, col_name):
-    #     """
-    #     Read HBDF data based on given reference file.
-
-    #     Args:
-    #         hbdf_dir (str): Directory containing HBDF files.
-    #         ref_file (pandas.DataFrame): Reference file for HBDF data.
-    #         model_name (str): Name of the model.
-    #         col_name (str): Name of the column to be created.
-
-    #     Returns:
-    #         pandas.DataFrame: Processed HBDF data.
-    #     """
-    #     hbdf = []
-    #     file_dir = os.path.join(hbdf_dir, 'HBDF.txt')
-    #     with open(file_dir) as file:
-    #         lines = file.readlines()
-    #         for line in lines:
-    #             line_trimmed = line.strip('\n')
-    #             hbdf.append(line_trimmed)  
-
-    #     # Process and store hbdf data
-    #     hbdf_df = pd.DataFrame([])  
-
-    #     # Prepare a list of ids
-    #     hbdf_id_list = ref_file.ComponentNumber.to_list()        
-
-    #     for number in hbdf_id_list:
-    #         hbdf_key = ref_file.set_index('ComponentNumber').loc[number, 'HBDF_Key']
-    #         hbdf_key_index = hbdf.index([line for line in hbdf if hbdf_key in line][0]) + 5
-    #         df = pd.DataFrame(hbdf[hbdf_key_index].split()).T
-
-    #         hbdf_df = pd.concat([hbdf_df, df], axis =0)
-
-    #     ### **** OLD CODE for Year 2024 ****#
-    #     # hbdf_df.columns = ['Year'] + [n for n in range(1, len(hbdf_df.columns))]
-    #     # hbdf_df.insert(0, 'ComponentNumber', hbdf_id_list)
-    #     # hbdf_data = pd.melt(hbdf_df, id_vars=['Year', 'ComponentNumber'], value_vars=list(hbdf_df.columns[2:]), var_name='Interval', value_name=col_name)
-    #     # hbdf_data.insert(0, 'ModelName', model_name)
-    #     # hbdf_data = hbdf_data[['ModelName','ComponentNumber','Year','Interval',col_name]]
-    #     # # hbdf_data.to_csv('hbdf_data.csv')
-    #     # print("HBDF FILE ADDED")
-    #     # hbdf_data['Year'] = pd.to_numeric(hbdf_data['Year'])
-    #     # return hbdf_data
-    
-    #     ### **** NEW CODE for Year 2025 ****#
-    #     hbdf_df.columns = ['Year'] + [n for n in range(1, len(hbdf_df.columns))]
-    #     hbdf_df.insert(0, 'ComponentNumber', hbdf_id_list)
-    #     hbdf_data = pd.melt(hbdf_df, id_vars=['Year', 'ComponentNumber'], value_vars=list(hbdf_df.columns[2:]), var_name='Interval', value_name=col_name)
-    #     hbdf_data.insert(0, 'ModelName', model_name)
-    #     hbdf_data = hbdf_data[hbdf_data['Year'].astype(str).str.match(r'^\d{4}$', na=False)]
-    #     hbdf_data = hbdf_data[['ModelName','ComponentNumber','Year','Interval',col_name]]
-    #     hbdf_data['Year'] = pd.to_numeric(hbdf_data['Year'], errors='raise')
-    #     return hbdf_data
-
-
-#### This is working with Waterton but need Year=2025 as one of the string matching
-
-    # def read_hbdf_based_on_ref(self, hbdf_dir, ref_file, model_name, col_name):
-    #     """
-    #     Read HBDF data based on given reference file with improved line matching.
-    #     """
-    #     hbdf = []
-    #     file_dir = os.path.join(hbdf_dir, 'HBDF.txt')
-        
-    #     with open(file_dir) as file:
-    #         lines = file.readlines()
-    #         for line in lines:
-    #             line_trimmed = line.strip('\n')
-    #             hbdf.append(line_trimmed)  
-
-    #     # Process and store hbdf data
-    #     hbdf_df = pd.DataFrame([])  
-
-    #     # Prepare a list of ids
-    #     hbdf_id_list = ref_file.ComponentNumber.to_list()
-        
-    #     for idx, number in enumerate(hbdf_id_list):
-    #         component_name = ref_file.iloc[idx]['ComponentName']
-    #         hbdf_key = ref_file.set_index('ComponentNumber').loc[number, 'HBDF_Key']
-            
-    #         # Debug print for Waterton
-    #         if component_name == 'Waterton':
-    #             print(f"\n=== Special debugging for Waterton ===")
-    #             print(f"Looking for HBDF key: '{hbdf_key}'")
-            
-    #         # Find lines that match the HBDF key pattern (key followed by year and CMS)
-    #         matching_lines = []
-    #         for i, line in enumerate(hbdf):
-    #             # Look for lines that start with the HBDF key and contain year and 'CMS'
-    #             if line.strip().startswith(hbdf_key) and '2025' in line and 'CMS' in line:
-    #                 matching_lines.append((i, line))
-    #                 if component_name == 'Waterton':
-    #                     print(f"Found potential match at line {i}: {line.strip()}")
-            
-    #         if not matching_lines:
-    #             # If no exact match, try less strict matching
-    #             for i, line in enumerate(hbdf):
-    #                 if hbdf_key in line and '2025' in line:
-    #                     matching_lines.append((i, line))
-    #                     if component_name == 'Waterton':
-    #                         print(f"Found less strict match at line {i}: {line.strip()}")
-            
-    #         if not matching_lines:
-    #             print(f"WARNING: No matching line found for {component_name} with key '{hbdf_key}'")
-    #             # Add empty row with zeros
-    #             empty_values = ['2025'] + ['0.000'] * 52
-    #             df = pd.DataFrame([empty_values])
-    #             hbdf_df = pd.concat([hbdf_df, df], axis=0)
-    #             continue
-            
-    #         # Use the first valid matching line
-    #         hbdf_key_index, hbdf_line = matching_lines[0]
-            
-    #         # The data should be 5 lines after the header
-    #         data_line_index = hbdf_key_index + 5
-            
-    #         if data_line_index >= len(hbdf):
-    #             print(f"ERROR: Data line index {data_line_index} out of bounds for {component_name}")
-    #             empty_values = ['2025'] + ['0.000'] * 52
-    #             df = pd.DataFrame([empty_values])
-    #             hbdf_df = pd.concat([hbdf_df, df], axis=0)
-    #             continue
-            
-    #         data_line = hbdf[data_line_index]
-            
-    #         # Special check for Waterton
-    #         if component_name == 'Waterton':
-    #             print(f"Data line for Waterton: {data_line[:200]}")
-    #             # Let's also check a few lines around to make sure we have the right one
-    #             print(f"Lines around data line:")
-    #             for j in range(max(0, data_line_index-2), min(len(hbdf), data_line_index+3)):
-    #                 print(f"  Line {j}: {hbdf[j][:100]}")
-            
-    #         values = data_line.split()
-            
-    #         # Validate that we have a proper data line (should start with year and have ~53 values)
-    #         if len(values) < 50 or not values[0].isdigit():
-    #             print(f"WARNING: Invalid data line for {component_name}, trying to find correct line")
-    #             # Try to find the correct data line by looking for a line that starts with a year
-    #             found_data = False
-    #             for offset in range(1, 10):
-    #                 if data_line_index + offset < len(hbdf):
-    #                     test_line = hbdf[data_line_index + offset]
-    #                     test_values = test_line.split()
-    #                     if len(test_values) > 50 and test_values[0] == '2025':
-    #                         values = test_values
-    #                         found_data = True
-    #                         if component_name == 'Waterton':
-    #                             print(f"Found correct data line at offset {offset}: {test_line[:100]}")
-    #                         break
-                
-    #             if not found_data:
-    #                 print(f"ERROR: Could not find valid data line for {component_name}")
-    #                 values = ['2025'] + ['0.000'] * 52
-            
-    #         # Debug print for Waterton week values
-    #         if component_name == 'Waterton' and len(values) >= 26:
-    #             print(f"Waterton week 22-26 values from data line:")
-    #             print(f"  Week 22 (index 21): {values[21] if len(values) > 21 else 'N/A'}")
-    #             print(f"  Week 23 (index 22): {values[22] if len(values) > 22 else 'N/A'}")
-    #             print(f"  Week 24 (index 23): {values[23] if len(values) > 23 else 'N/A'}")
-    #             print(f"  Week 25 (index 24): {values[24] if len(values) > 24 else 'N/A'}")
-    #             print(f"  Week 26 (index 25): {values[25] if len(values) > 25 else 'N/A'}")
-            
-    #         df = pd.DataFrame([values])
-    #         hbdf_df = pd.concat([hbdf_df, df], axis=0)
-
-    #     if hbdf_df.empty:
-    #         return pd.DataFrame()
-
-    #     # Process the data
-    #     try:
-    #         # Reset index before processing
-    #         hbdf_df = hbdf_df.reset_index(drop=True)
-            
-    #         # The first column is the year, rest are weeks 1-52
-    #         hbdf_df.columns = ['Year'] + [n for n in range(1, len(hbdf_df.columns))]
-    #         hbdf_df.insert(0, 'ComponentNumber', hbdf_id_list[:len(hbdf_df)])
-            
-    #         # Melt the dataframe
-    #         hbdf_data = pd.melt(hbdf_df, id_vars=['Year', 'ComponentNumber'], 
-    #                             value_vars=list(hbdf_df.columns[2:]), 
-    #                             var_name='Interval', value_name=col_name)
-    #         hbdf_data.insert(0, 'ModelName', model_name)
-            
-    #         # Filter for valid years
-    #         hbdf_data = hbdf_data[hbdf_data['Year'].astype(str).str.match(r'^\d{4}$', na=False)]
-            
-    #         hbdf_data = hbdf_data[['ModelName','ComponentNumber','Year','Interval',col_name]]
-    #         hbdf_data['Year'] = pd.to_numeric(hbdf_data['Year'], errors='raise')
-    #         hbdf_data['Interval'] = pd.to_numeric(hbdf_data['Interval'])
-    #         hbdf_data[col_name] = pd.to_numeric(hbdf_data[col_name], errors='coerce')
-            
-    #         # Final check for Waterton
-    #         waterton_data = hbdf_data[hbdf_data['ComponentNumber'] == 206]
-    #         if not waterton_data.empty:
-    #             print(f"\nFinal Waterton data (weeks 22-26):")
-    #             week_data = waterton_data[waterton_data['Interval'].between(22, 26)].sort_values('Interval')
-    #             print(week_data[['Interval', col_name]])
-            
-    #         return hbdf_data
-            
-    #     except Exception as e:
-    #         print(f"ERROR during data processing: {str(e)}")
-    #         import traceback
-    #         traceback.print_exc()
-    #         return pd.DataFrame()
-    
     
 #### This is more robust approach
     def read_hbdf_based_on_ref(self, hbdf_dir, ref_file, model_name, col_name):
@@ -1242,102 +910,12 @@ class WRMMDataProcessor:
 
         return natchl_io_data
 
-    # def estimate_res_annual_inflow_volume(self,ref_file, link_data,seconds_in_day, year_num, start_week,end_week):
-    #     """
-    #     Estimate annual inflow volume for reservoirs.
-
-    #     Args:
-    #         ref_file (pandas.DataFrame): Reference file.
-    #         link_data (pandas.DataFrame): Link data.
-    #         seconds_in_day (int): Number of seconds in a day.
-    #         year_num (int): Year number.
-    #         start_week (int): Start week for data processing.
-    #         end_week (int): End week for data processing.
-
-    #     Returns:
-    #         pandas.DataFrame: Estimated annual inflow volume for reservoirs.
-    #     """
-        
-    #     # inflow from links (DIVCHL, NATCHL, and RETRUN)
-    #     ref_file = ref_file.dropna(how = 'all', subset = list(ref_file.columns)[3:])
-
-    #     df1 = link_data.copy()
-    #     mdb_tab = df1.rename(columns = {'Simulated':'Simulated_cms'})
-    #     mdb_tab['Simulated_dam3'] = np.where((mdb_tab.Interval == end_week),\
-    #                                         (mdb_tab.Simulated_cms * 8*seconds_in_day)/1000,\
-    #                                         (mdb_tab.Simulated_cms * 7*seconds_in_day)/1000)
-    #     mdb_tab = mdb_tab[(mdb_tab.Interval >= start_week) & (mdb_tab.Interval <= end_week)]
-        
-    #     mdb_tab.reset_index(inplace=True)
-
-    #     df_tem = mdb_tab.groupby(['ModelName', 'ComponentNumber']).sum()['Simulated_dam3'].reset_index()
-    #     df_tem.set_index(['ModelName', 'ComponentNumber'], inplace=True)
-
-    #     sum_tab1 = ref_file.copy()
-        
-    #     total_supply = []
-    #     for idx1 in ref_file.index:
-    #         total_supply_temp = []
-    #         sup_lst = list(ref_file.loc[idx1].iloc[3:-1].dropna())
-    #         model_name = ref_file.loc[idx1].ModelName
-    #         supply = []
-    #         for n in sup_lst:
-    #             supply.append(df_tem.loc[(model_name, n)].Simulated_dam3)
-    
-    #         total_supply_temp.append(sum(supply))
-    #         total_supply.append(total_supply_temp[0])
-    #     sum_tab1['Total_annual_link_inflow_dam3'] = total_supply
-
-    #     sum_tab1['Year'] = int(year_num)
-    #     sum_tab1 = sum_tab1[['ModelName', 'ComponentNumber', 'ComponentName', 'Year', 'Total_annual_link_inflow_dam3']]
-        
-    #     # inflow from inflow node / direct inflow
-    #     hbdf_ref_file = ref_file.dropna(subset='HBDF_Key')
-    #     hbdf_inflow = pd.DataFrame([])
-        
-    #     for model in hbdf_ref_file.ModelName.unique():
-            
-    #         hbdf_dir = os.path.join(self.model_dir, model)
-    #         inflow_hbdf_ref_file = hbdf_ref_file[hbdf_ref_file.ModelName == model]
-    #         print("INFLOW : ",inflow_hbdf_ref_file)
-    #         sum_tab2 = self.read_hbdf_based_on_ref(hbdf_dir, inflow_hbdf_ref_file, model, 'Flow_cms')
-    #         sum_tab2['Flow_cms'] = pd.to_numeric(sum_tab2['Flow_cms'])
-    #         sum_tab2['Flow_dam3'] = np.where((sum_tab2.Interval == end_week),\
-    #                                 (sum_tab2.Flow_cms * 8*seconds_in_day)/1000,\
-    #                                 (sum_tab2.Flow_cms * 7*seconds_in_day)/1000)
-    #         sum_tab2 = sum_tab2[(sum_tab2.Interval >= start_week) & (sum_tab2.Interval <= end_week)]
-            
-    #         sum_tab2 = sum_tab2.groupby(['ModelName', 'ComponentNumber', 'Year']).sum()
-    #         del sum_tab2['Flow_cms']
-    #         sum_tab2.reset_index(inplace=True)
-    #         sum_tab2 = sum_tab2.rename(columns = {'Flow_dam3': 'Direct_annual_inflow_dam3'})
-            
-                
-    #         hbdf_inflow = pd.concat([hbdf_inflow, sum_tab2], axis=0, ignore_index = True)
-        
-    #     print(f"Component numbers: {hbdf_inflow['ComponentNumber'].unique()}")                
-    #     res_inflow_sumtab = sum_tab1.set_index(['ModelName', 'ComponentNumber', 'Year']).join(hbdf_inflow.set_index(['ModelName', 'ComponentNumber', 'Year']))
-
-    #     # print("res_inflow_sumtab: ",res_inflow_sumtab)
-        
-    #     res_inflow_sumtab.reset_index(inplace=True)
-    #     res_inflow_sumtab = res_inflow_sumtab.fillna(0)
-        
-    #     res_inflow_sumtab ['Reservoir_annual_inflow_dam3'] = res_inflow_sumtab.Total_annual_link_inflow_dam3 + res_inflow_sumtab.Direct_annual_inflow_dam3
-        
-    #     return res_inflow_sumtab
-
 ### NEW ResInflow Clode
     def estimate_res_annual_inflow_volume(self, ref_file, link_data, seconds_in_day, year_num, start_week, end_week):
         """
         Estimate annual inflow volume for reservoirs with debugging for Waterton.
         """
-        
-        # print(f"\n=== DEBUG: Starting estimate_res_annual_inflow_volume ===")
-        # print(f"Processing weeks {start_week} to {end_week}")
-        
-        # Check if Waterton is in the reference file
-        # print("\n--- Checking reference file for Waterton ---")
+
 
         waterton_in_ref = ref_file[ref_file['ComponentName'] == 'Waterton']
         if not waterton_in_ref.empty:
@@ -1352,10 +930,6 @@ class WRMMDataProcessor:
         
         df1 = link_data.copy()
         mdb_tab = df1.rename(columns={'Simulated': 'Simulated_cms'})
-        # mdb_tab['Simulated_dam3'] = np.where((mdb_tab.Interval == end_week),
-        #                                     (mdb_tab.Simulated_cms * 8*seconds_in_day)/1000,
-        #                                     (mdb_tab.Simulated_cms * 7*seconds_in_day)/1000)
-
         if end_week == 52:
             mdb_tab['Simulated_dam3'] = np.where(
                 (mdb_tab.Interval == end_week),
@@ -1792,12 +1366,7 @@ class WRMMDataProcessor:
             major_div_cap = major_div_cap.drop_duplicates()
 
             major_div_cap.reset_index(drop=True, inplace=True)
-    ####        print("From Function get major div cap: ",major_div_cap)
 
-            # ---------------------------- 
-            # read divcap data
-            # get the index where $PENSYS starts and ends, and keep pensys only in scf
-            # get the data between $PENSYS and $WATDEM .. the following represens the line number when first $WATDEM appears in the file.
             scf_pensys = scf[scf.index('$PENSYS'):scf.index('$WATDEM')]
 
             # get divchl start index in pensys
@@ -1948,7 +1517,3 @@ class WRMMDataProcessor:
             output_path = os.path.join(output_dir,f'SumTab_SBasinNON{output_file}.xlsx')
             result_df.to_excel(output_path, index=True)
             
-#            print(f"Processed and saved: {output_path}")
-#            print(result_df)
-#            print("\n")
-    
